@@ -1,6 +1,7 @@
 package com.github.wenweihu86.raft.storage;
 
-import com.github.wenweihu86.raft.proto.RaftProto;
+import com.github.wenweihu86.raft.RaftOptions;
+import com.github.wenweihu86.raft.proto.RaftMessage;
 import com.github.wenweihu86.raft.util.RaftFileUtils;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -31,7 +32,7 @@ public class Snapshot {
 
     private static final Logger LOG = LoggerFactory.getLogger(Snapshot.class);
     private String snapshotDir;
-    private RaftProto.SnapshotMetaData metaData;
+    private RaftMessage.SnapshotMetaData metaData;
     // 表示是否正在安装snapshot，leader向follower安装，leader和follower同时处于installSnapshot状态
     private AtomicBoolean isInstallSnapshot = new AtomicBoolean(false);
     // 表示节点自己是否在对状态机做snapshot
@@ -50,7 +51,7 @@ public class Snapshot {
     public void reload() {
         metaData = this.readMetaData();
         if (metaData == null) {
-            metaData = RaftProto.SnapshotMetaData.newBuilder().build();
+            metaData = RaftMessage.SnapshotMetaData.newBuilder().build();
         }
     }
 
@@ -91,12 +92,12 @@ public class Snapshot {
         }
     }
 
-    public RaftProto.SnapshotMetaData readMetaData() {
+    public RaftMessage.SnapshotMetaData readMetaData() {
         String fileName = snapshotDir + File.separator + "metadata";
         File file = new File(fileName);
         try (RandomAccessFile randomAccessFile = new RandomAccessFile(file, "r")) {
-            RaftProto.SnapshotMetaData metadata = RaftFileUtils.readProtoFromFile(
-                    randomAccessFile, RaftProto.SnapshotMetaData.class);
+            RaftMessage.SnapshotMetaData metadata = RaftFileUtils.readProtoFromFile(
+                    randomAccessFile, RaftMessage.SnapshotMetaData.class);
             return metadata;
         } catch (IOException ex) {
             LOG.warn("meta file not exist, name={}", fileName);
@@ -107,8 +108,8 @@ public class Snapshot {
     public void updateMetaData(String dir,
                                Long lastIncludedIndex,
                                Long lastIncludedTerm,
-                               RaftProto.Configuration configuration) {
-        RaftProto.SnapshotMetaData snapshotMetaData = RaftProto.SnapshotMetaData.newBuilder()
+                               RaftMessage.Configuration configuration) {
+        RaftMessage.SnapshotMetaData snapshotMetaData = RaftMessage.SnapshotMetaData.newBuilder()
                 .setLastIncludedIndex(lastIncludedIndex)
                 .setLastIncludedTerm(lastIncludedTerm)
                 .setConfiguration(configuration).build();
@@ -134,7 +135,7 @@ public class Snapshot {
         }
     }
 
-    public RaftProto.SnapshotMetaData getMetaData() {
+    public RaftMessage.SnapshotMetaData getMetaData() {
         return metaData;
     }
 

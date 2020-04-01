@@ -1,15 +1,15 @@
 package com.github.wenweihu86.raft.example.server;
 
-import com.baidu.brpc.server.RpcServer;
 import com.github.wenweihu86.raft.RaftOptions;
 import com.github.wenweihu86.raft.example.server.service.ExampleService;
 import com.github.wenweihu86.raft.RaftNode;
 import com.github.wenweihu86.raft.example.server.service.impl.ExampleServiceImpl;
-import com.github.wenweihu86.raft.proto.RaftProto;
+import com.github.wenweihu86.raft.proto.RaftMessage;
 import com.github.wenweihu86.raft.service.RaftClientService;
 import com.github.wenweihu86.raft.service.RaftConsensusService;
 import com.github.wenweihu86.raft.service.impl.RaftClientServiceImpl;
 import com.github.wenweihu86.raft.service.impl.RaftConsensusServiceImpl;
+import com.github.wenweihu86.rpc.server.RPCServer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,30 +19,23 @@ import java.util.List;
  */
 public class ServerMain {
     public static void main(String[] args) {
-        if (args.length != 3) {
-            System.out.printf("Usage: ./run_server.sh DATA_PATH CLUSTER CURRENT_NODE\n");
-            System.exit(-1);
-        }
         // parse args
-        // raft data dir
-        String dataPath = args[0];
         // peers, format is "host:port:serverId,host2:port2:serverId2"
-        String servers = args[1];
+        String servers = args[0];
         String[] splitArray = servers.split(",");
-        List<RaftProto.Server> serverList = new ArrayList<>();
+        List<RaftMessage.Server> serverList = new ArrayList<>();
         for (String serverString : splitArray) {
-            RaftProto.Server server = parseServer(serverString);
+            RaftMessage.Server server = parseServer(serverString);
             serverList.add(server);
         }
         // local server
-        RaftProto.Server localServer = parseServer(args[2]);
+        RaftMessage.Server localServer = parseServer(args[1]);
 
         // 初始化RPCServer
-        RpcServer server = new RpcServer(localServer.getEndpoint().getPort());
+        RPCServer server = new RPCServer(localServer.getEndPoint().getPort());
         // 设置Raft选项，比如：
         // just for test snapshot
         RaftOptions raftOptions = new RaftOptions();
-        raftOptions.setDataDir(dataPath);
         raftOptions.setSnapshotMinLogSize(10 * 1024);
         raftOptions.setSnapshotPeriodSeconds(30);
         raftOptions.setMaxSegmentFileSize(1024 * 1024);
@@ -64,15 +57,15 @@ public class ServerMain {
         raftNode.init();
     }
 
-    private static RaftProto.Server parseServer(String serverString) {
+    private static RaftMessage.Server parseServer(String serverString) {
         String[] splitServer = serverString.split(":");
         String host = splitServer[0];
         Integer port = Integer.parseInt(splitServer[1]);
         Integer serverId = Integer.parseInt(splitServer[2]);
-        RaftProto.Endpoint endPoint = RaftProto.Endpoint.newBuilder()
+        RaftMessage.EndPoint endPoint = RaftMessage.EndPoint.newBuilder()
                 .setHost(host).setPort(port).build();
-        RaftProto.Server.Builder serverBuilder = RaftProto.Server.newBuilder();
-        RaftProto.Server server = serverBuilder.setServerId(serverId).setEndpoint(endPoint).build();
+        RaftMessage.Server.Builder serverBuilder = RaftMessage.Server.newBuilder();
+        RaftMessage.Server server = serverBuilder.setServerId(serverId).setEndPoint(endPoint).build();
         return server;
     }
 }
