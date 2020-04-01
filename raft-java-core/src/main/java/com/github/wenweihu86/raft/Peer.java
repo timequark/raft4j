@@ -1,17 +1,19 @@
 package com.github.wenweihu86.raft;
 
-import com.baidu.brpc.client.BrpcProxy;
-import com.baidu.brpc.client.RpcClient;
-import com.baidu.brpc.client.instance.Endpoint;
-import com.github.wenweihu86.raft.proto.RaftProto;
+import com.github.wenweihu86.raft.proto.RaftMessage;
+import com.github.wenweihu86.raft.service.RaftConsensusService;
 import com.github.wenweihu86.raft.service.RaftConsensusServiceAsync;
+import com.github.wenweihu86.rpc.client.EndPoint;
+import com.github.wenweihu86.rpc.client.RPCClient;
+import com.github.wenweihu86.rpc.client.RPCProxy;
 
 /**
  * Created by wenweihu86 on 2017/5/5.
  */
 public class Peer {
-    private RaftProto.Server server;
-    private RpcClient rpcClient;
+    private RaftMessage.Server server;
+    private RPCClient rpcClient;
+    private RaftConsensusService raftConsensusService;
     private RaftConsensusServiceAsync raftConsensusServiceAsync;
     // 需要发送给follower的下一个日志条目的索引值，只对leader有效
     private long nextIndex;
@@ -20,21 +22,26 @@ public class Peer {
     private volatile Boolean voteGranted;
     private volatile boolean isCatchUp;
 
-    public Peer(RaftProto.Server server) {
+    public Peer(RaftMessage.Server server) {
         this.server = server;
-        this.rpcClient = new RpcClient(new Endpoint(
-                server.getEndpoint().getHost(),
-                server.getEndpoint().getPort()));
-        raftConsensusServiceAsync = BrpcProxy.getProxy(rpcClient, RaftConsensusServiceAsync.class);
+        this.rpcClient = new RPCClient(new EndPoint(
+                server.getEndPoint().getHost(),
+                server.getEndPoint().getPort()));
+        raftConsensusService = RPCProxy.getProxy(rpcClient, RaftConsensusService.class);
+        raftConsensusServiceAsync = RPCProxy.getProxy(rpcClient, RaftConsensusServiceAsync.class);
         isCatchUp = false;
     }
 
-    public RaftProto.Server getServer() {
+    public RaftMessage.Server getServer() {
         return server;
     }
 
-    public RpcClient getRpcClient() {
+    public RPCClient getRpcClient() {
         return rpcClient;
+    }
+
+    public RaftConsensusService getRaftConsensusService() {
+        return raftConsensusService;
     }
 
     public RaftConsensusServiceAsync getRaftConsensusServiceAsync() {
