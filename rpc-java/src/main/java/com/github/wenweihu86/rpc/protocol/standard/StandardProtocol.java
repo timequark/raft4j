@@ -49,7 +49,7 @@ public class StandardProtocol<T> implements ProtocolProcessor {
         } else {
             methodName = method.getName();
         }
-        LOG.debug("serviceName={}, methodName={}", serviceName, methodName);
+        //LOG.debug("serviceName={}, methodName={}", serviceName, methodName);
 
         headerBuilder.setServiceName(serviceName);
         headerBuilder.setMethodName(methodName);

@@ -12,11 +12,18 @@ public class BenchmarkTest {
     private static volatile int totalRequestNum = 0;
 
     public static void main(String[] args) {
-        if (args.length != 1) {
+        String uri =  "127.0.0.1:8766";
+        if (args.length < 1) {
             System.out.println("muse have one argument: threadNum");
             System.exit(-1);
         }
-        RPCClient rpcClient = new RPCClient("127.0.0.1:8766");
+
+        if (args.length == 2) {
+            uri = args[1];
+            System.out.println("remote host is: " + uri);
+        }
+
+        RPCClient rpcClient = new RPCClient(uri);
         int threadNum = Integer.parseInt(args[0]);
         Thread[] threads = new Thread[threadNum];
         for (int i = 0; i < threadNum; i++) {
@@ -30,7 +37,7 @@ public class BenchmarkTest {
             } catch (Exception ex) {
                 System.out.println(ex.getMessage());
             }
-            System.out.println("qps=" + (totalRequestNum - lastRequestNum));
+            System.out.println(String.format("\nqps={%s}\n", (totalRequestNum - lastRequestNum)));
         }
     }
 
