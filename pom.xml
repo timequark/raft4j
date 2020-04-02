@@ -15,6 +15,7 @@
     </properties>
 
     <modules>
+        <module>rpc-java</module>
         <module>raft-java-core</module>
         <module>raft-java-example</module>
         <module>raft-java-admin</module>
