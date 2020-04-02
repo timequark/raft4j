@@ -161,6 +161,9 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
             }
 
             responseBuilder.setResCode(RaftMessage.ResCode.RES_CODE_SUCCESS);
+
+            // liuhao: 应该先强制擦除 prev_log_index 后的所有数据？？？
+
             List<RaftMessage.LogEntry> entries = new ArrayList<>();
             long index = request.getPrevLogIndex();
             for (RaftMessage.LogEntry entry : request.getEntriesList()) {
