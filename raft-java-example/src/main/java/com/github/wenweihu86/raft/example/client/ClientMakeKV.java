@@ -27,7 +27,7 @@ public class ClientMakeKV {
         ExampleService exampleService = RPCProxy.getProxy(rpcClient, ExampleService.class);
         final JsonFormat.Printer printer = JsonFormat.printer().omittingInsignificantWhitespace();
 
-        for(int i = 1, n = 100 * 1024; i <= n; i++) {
+        for(int i = 1, n = 10 * 1024; i <= n; i++) {
             key = String.format("key-%d", i);
             value = ""+i;
             ExampleMessage.SetRequest setRequest = ExampleMessage.SetRequest.newBuilder()
