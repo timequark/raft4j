@@ -32,6 +32,7 @@ public class ExampleServiceImpl implements ExampleService {
     public ExampleMessage.SetResponse set(ExampleMessage.SetRequest request) {
         ExampleMessage.SetResponse.Builder responseBuilder = ExampleMessage.SetResponse.newBuilder();
         // 如果自己不是leader，将写请求转发给leader
+        LOG.info("leader id = {}, my id = {}", raftNode.getLeaderId(), raftNode.getLocalServer().getServerId());
         if (raftNode.getLeaderId() <= 0) {
             responseBuilder.setSuccess(false);
         } else if (raftNode.getLeaderId() != raftNode.getLocalServer().getServerId()) {
@@ -48,6 +49,7 @@ public class ExampleServiceImpl implements ExampleService {
 
         ExampleMessage.SetResponse response = responseBuilder.build();
         try {
+            LOG.info("response.success = {}", response.getSuccess());
             LOG.info("set request, request={}, response={}", printer.print(request),
                     printer.print(response));
         } catch (InvalidProtocolBufferException ex) {

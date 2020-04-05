@@ -10,6 +10,8 @@ import com.github.wenweihu86.raft.service.RaftConsensusService;
 import com.github.wenweihu86.raft.service.impl.RaftClientServiceImpl;
 import com.github.wenweihu86.raft.service.impl.RaftConsensusServiceImpl;
 import com.github.wenweihu86.rpc.server.RPCServer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,10 +20,11 @@ import java.util.List;
  * Created by wenweihu86 on 2017/5/9.
  */
 public class ServerMain {
+    private static final Logger LOG = LoggerFactory.getLogger(ServerMain.class);
     public static void main(String[] args) {
         // parse args
         // peers, format is "host:port:serverId,host2:port2:serverId2"
-        String servers = args[0];
+        String servers = (args !=null && args.length > 0) ? args[0] : "127.0.0.1:8801:1,127.0.0.1:8802:2";
         String[] splitArray = servers.split(",");
         List<RaftMessage.Server> serverList = new ArrayList<>();
         for (String serverString : splitArray) {
@@ -29,16 +32,19 @@ public class ServerMain {
             serverList.add(server);
         }
         // local server
-        RaftMessage.Server localServer = parseServer(args[1]);
+        RaftMessage.Server localServer = parseServer((args !=null && args.length > 1) ? args[1] : "127.0.0.1:8800:0");
 
         // 初始化RPCServer
-        RPCServer server = new RPCServer(localServer.getEndPoint().getPort());
+        final RPCServer server = new RPCServer(localServer.getEndPoint().getPort());
+
         // 设置Raft选项，比如：
         // just for test snapshot
         RaftOptions raftOptions = new RaftOptions();
         raftOptions.setSnapshotMinLogSize(10 * 1024);
         raftOptions.setSnapshotPeriodSeconds(30);
         raftOptions.setMaxSegmentFileSize(1024 * 1024);
+        //raftOptions.setDataDir(String.format("%s-%s-%d", localServer.getServerId(), localServer.getEndPoint().getHost(), localServer.getEndPoint().getPort()));
+
         // 应用状态机
         ExampleStateMachine stateMachine = new ExampleStateMachine(raftOptions.getDataDir());
         // 初始化RaftNode
@@ -53,8 +59,20 @@ public class ServerMain {
         ExampleService exampleService = new ExampleServiceImpl(raftNode, stateMachine);
         server.registerService(exampleService);
         // 启动RPCServer，初始化Raft节点
+        LOG.info("start server ...");
         server.start();
+        LOG.info("start server done");
+        LOG.info("init raft ...");
         raftNode.init();
+        LOG.info("init raft done");
+
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                server.shutdown();
+                System.out.println("Quit !");
+            }
+        });
     }
 
     private static RaftMessage.Server parseServer(String serverString) {

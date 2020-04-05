@@ -5,6 +5,10 @@
      to make all loggers asynchronous. -->
 
 <Configuration status="INFO">
+    <properties>
+        <!-- REF: http://logging.apache.org/log4j/2.x/manual/lookups.html -->
+        <property name="LOG_HOME">logs</property>
+    </properties>
     <Appenders>
 
         <Console name="Console" target="SYSTEM_OUT">
@@ -12,9 +16,9 @@
         </Console>
 
         <!-- Async Loggers will auto-flush in batches, so switch off immediateFlush. -->
-        <RollingFile name="RollingFile" fileName="logs/raft_example.log" immediateFlush="false"
+        <RollingFile name="RollingFile" fileName="${LOG_HOME}/raft_example.log" immediateFlush="false"
                      bufferSize="65536"
-                     filePattern="logs/raft_example.log.%d{yyyy-MM-dd}" append="true">
+                     filePattern="${LOG_HOME}/raft_example.log.%d{yyyy-MM-dd}" append="true">
             <PatternLayout>
                 <Pattern>%d %p [%t]\t%m%n</Pattern>
             </PatternLayout>
