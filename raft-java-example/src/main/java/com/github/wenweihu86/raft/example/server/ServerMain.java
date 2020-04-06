@@ -42,7 +42,7 @@ public class ServerMain {
         RaftOptions raftOptions = new RaftOptions();
         raftOptions.setSnapshotMinLogSize(10 * 1024);
         raftOptions.setSnapshotPeriodSeconds(30);
-        raftOptions.setMaxSegmentFileSize(1024 * 1024);
+        raftOptions.setMaxSegmentFileSize(100 * 1024);
         //raftOptions.setDataDir(String.format("%s-%s-%d", localServer.getServerId(), localServer.getEndPoint().getHost(), localServer.getEndPoint().getPort()));
 
         // 应用状态机
