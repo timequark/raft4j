@@ -1,0 +1,13 @@
+localhost:8801:1,localhost:8802:2 localhost:8803:3
+
+java -cp raft-java-example-1.8.0-fat.jar com.github.wenweihu86.raft.example.server.ServerMain localhost:8801:1,localhost:8802:2,localhost:8803:3 localhost:8801:1 1-localhost-8801
+java -cp raft-java-example-1.8.0-fat.jar com.github.wenweihu86.raft.example.server.ServerMain localhost:8801:1,localhost:8802:2,localhost:8803:3 localhost:8802:2 2-localhost-8802
+java -cp raft-java-example-1.8.0-fat.jar com.github.wenweihu86.raft.example.server.ServerMain localhost:8801:1,localhost:8802:2,localhost:8803:3 localhost:8803:3 3-localhost-8803
+
+java -cp raft-java-example-1.8.0-fat.jar com.github.wenweihu86.raft.example.client.ClientMain localhost:8801 k1 99
+java -cp raft-java-example-1.8.0-fat.jar com.github.wenweihu86.raft.example.client.ClientMain localhost:8801 k1
+
+java -cp raft-java-example-1.8.0-fat.jar com.github.wenweihu86.raft.example.client.ClientMakeKV localhost:8801
+
+//QPS
+java -cp raft-java-example-1.8.0-fat.jar com.github.wenweihu86.raft.example.client.BenchmarkTest localhost:8802 1
