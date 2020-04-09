@@ -31,6 +31,10 @@ public class RPCProxy implements MethodInterceptor {
     public static <T> T getProxy(RPCClient rpcClient, Class clazz) {
         Enhancer en = new Enhancer();
         en.setSuperclass(clazz);
+
+        // 这里不能用 en.setCallback(this)，因为要区别 rpcClient ，rpcClient 对应不同的 Peer
+        // Enhancer 还可以代理 Object ，参考：https://www.cnblogs.com/wobuchifanqie/p/9996978.html
+        // liuhao
         en.setCallback(new RPCProxy(rpcClient));
         return (T) en.create();
     }
